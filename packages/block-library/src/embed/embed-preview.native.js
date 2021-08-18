@@ -18,11 +18,12 @@ import { SandBox } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { getPhotoHtml } from './util';
 import EmbedNoPreview from './embed-no-preview';
 import WpEmbedPreview from './wp-embed-preview';
+import styles from './styles.scss';
 
 const EmbedPreview = ( {
+	align,
 	className,
 	clientId,
 	icon,
@@ -36,6 +37,14 @@ const EmbedPreview = ( {
 	url,
 } ) => {
 	const [ isCaptionSelected, setIsCaptionSelected ] = useState( false );
+
+	const wrapperStyle = styles[ 'embed-preview__wrapper' ];
+	const wrapperAlignStyle =
+		styles[ `embed-preview__wrapper--align-${ align }` ] ||
+		styles[ 'embed-preview__wrapper--align' ];
+	const sandboxAlignStyle =
+		styles[ `embed-preview__sandbox--align-${ align }` ] ||
+		styles[ 'embed-preview__sandbox--align' ];
 
 	function accessibilityLabelCreator( caption ) {
 		return isEmpty( caption )
@@ -62,7 +71,7 @@ const EmbedPreview = ( {
 	}
 
 	const { provider_url: providerUrl } = preview;
-	const html = 'photo' === type ? getPhotoHtml( preview ) : preview.html;
+	const html = preview.html;
 	const parsedHost = new URL( url ).host.split( '.' );
 	const parsedHostBaseUrl = parsedHost
 		.splice( parsedHost.length - 2, parsedHost.length - 1 )
@@ -79,6 +88,7 @@ const EmbedPreview = ( {
 	);
 
 	const embedWrapper = (
+		/* We should render here: <WpEmbedPreview html={ html } /> */
 		<>
 			<TouchableWithoutFeedback
 				onPress={ () => {
@@ -90,7 +100,10 @@ const EmbedPreview = ( {
 					}
 				} }
 			>
-				<View pointerEvents="box-only">
+				<View
+					pointerEvents="box-only"
+					style={ [ wrapperStyle, wrapperAlignStyle ] }
+				>
 					{ 'wp-embed' === type ? (
 						<WpEmbedPreview
 							html={ html }
@@ -105,6 +118,7 @@ const EmbedPreview = ( {
 							type={ sandboxClassnames }
 							providerUrl={ providerUrl }
 							url={ url }
+							containerStyle={ sandboxAlignStyle }
 						/>
 					) }
 				</View>
